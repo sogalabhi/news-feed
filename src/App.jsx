@@ -1,9 +1,11 @@
 import React from "react";
-import Card from "./components/card";
+import News from "./components/News";
 
 export default function App() {
   return (
     <>
+    <News/>
     </>
+
   )
 }
