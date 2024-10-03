@@ -1,57 +1,48 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Card from './card';
+import Card from '../card';
 import InfiniteScroll from 'react-infinite-scroll-component';
-
-function News() {
+import data from '../../data'
+function Search() {
     const [articles, setArticles] = useState([])
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
     const [page, setPage] = useState(1)
     const [totalResults, setTotalResults] = useState(0)
-    const [preference, setpreference] = useState(["us", "india", "bitcoin", "sports", "cricket"])
-    const [query, setquery] = useState()
-    const concatq = (array) => {
-        let q = ""
-        for (let i = 0; i < array.length; i++) {
-            if (i == (array.length - 1)) {
-                q = q + array[i]
-            }
-            else if (array.length == 1) {
-                q = q + array[i]
-            }
-            else {
-                q = q + array[i] + "+"
-            }
+    const [query, setquery] = useState("")
+    const [preference, setpreference] = useState([])
+    const updateNews = async () => {
+        console.log(query)
+        if (query != "") {
+            const url = `https://newsapi.org/v2/everything?q=${query}&apiKey=2c349543be4947a0ae656d2a4fc380c6&page=${page}&pageSize=10`;
+            setLoading(true)
+            let data = await fetch(url);
+            // let parsedData = data;
+            let parsedData = await data.json()
+            setArticles(parsedData.articles)
+            setTotalResults(parsedData.totalResults)
+            setLoading(false)
         }
-        return q
-    }
-    const updateNews = async (array) => {
-        let q = concatq(array)
-        const url = `https://newsapi.org/v2/everything?q=${q}&apiKey=2c349543be4947a0ae656d2a4fc380c6&page=${page}&pageSize=10`;
-        setLoading(true)
-        let data = await fetch(url);
-        let parsedData = await data.json()
-        setArticles(parsedData.articles)
-        setTotalResults(parsedData.totalResults)
-        setLoading(false)
     }
     useEffect(() => {
-        updateNews(preference);
-    }, [])
+        updateNews();
+    }, [query])
+
     const fetchMoreData = async () => {
-        let q = query;
-        const url = `https://newsapi.org/v2/everything?q=${q}&apiKey=2c349543be4947a0ae656d2a4fc380c6&page=${page + 1}&pageSize=10`;
-        setPage(page + 1)
-        let data = await fetch(url);
-        let parsedData = await data.json()
-        setArticles(articles.concat(parsedData.articles))
-        setTotalResults(parsedData.totalResults)
+
+        console.log(query)
+        if (query != "") {
+
+            const url = `https://newsapi.org/v2/everything?q=${query}&apiKey=2c349543be4947a0ae656d2a4fc380c6&page=${page + 1}&pageSize=10`;
+            setPage(page + 1)
+            let data = await fetch(url);
+            let parsedData = await data.json()
+            // let parsedData = data;
+            setArticles(articles.concat(parsedData.articles))
+            setTotalResults(parsedData.totalResults)
+        }
     };
     const handleSearch = () => {
         let q = document.getElementById('search').value;
         setquery(q)
-        setArticles([])
-        updateNews([q]);
     }
     return (
         <div className='mx-auto max-w-7xl px-2 sm:px-6 lg:px-8'>
@@ -82,6 +73,8 @@ function News() {
                                         Button="View Details"
                                         author={article.author}
                                         publishedAt={article.publishedAt}
+                                        preference={preference}
+                                        setpreference={setpreference}
                                     ></Card>
                                 ))}
                         </div>
@@ -89,7 +82,8 @@ function News() {
                 </div>
             </section >
         </div >
+
     )
 }
 
-export default News
+export default Search
