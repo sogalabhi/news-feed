@@ -15,7 +15,6 @@ function Search() {
             const url = `https://newsapi.org/v2/everything?q=${query}&apiKey=2c349543be4947a0ae656d2a4fc380c6&page=${page}&pageSize=10`;
             setLoading(true)
             let data = await fetch(url);
-            // let parsedData = data;
             let parsedData = await data.json()
             setArticles(parsedData.articles)
             setTotalResults(parsedData.totalResults)
@@ -25,6 +24,29 @@ function Search() {
     useEffect(() => {
         updateNews();
     }, [query])
+
+    useEffect(() => {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            navigate("/login");
+        }
+        else {
+            const myHeaders = new Headers();
+            myHeaders.append("auth-token", token);
+            const requestOptions = {
+                method: "GET",
+                headers: myHeaders,
+                redirect: "follow"
+            };
+            async function getUser() {
+                const response = await fetch("http://localhost:3000/api/auth/getuser", requestOptions).catch((error) => console.error(error));
+                const json = await response.json();
+                setpreference(json.preference)
+                console.log(json.preference)
+            }
+            getUser();
+        }
+    }, [])
 
     const fetchMoreData = async () => {
 

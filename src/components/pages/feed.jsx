@@ -6,19 +6,36 @@ import { useNavigate } from "react-router-dom";
 function Feed() {
     const navigate = useNavigate();
 
+    const [articles, setArticles] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [page, setPage] = useState(1)
+    const [totalResults, setTotalResults] = useState(0)
+    const [preference, setpreference] = useState()
+
     useEffect(() => {
         const token = localStorage.getItem('authToken');
         if (!token) {
             navigate("/login");
         }
+        else {
+            const myHeaders = new Headers();
+            myHeaders.append("auth-token", token);
+            console.log(token)
+            const requestOptions = {
+                method: "GET",
+                headers: myHeaders,
+                redirect: "follow"
+            };
+            async function getUser() {
+                const response = await fetch("http://localhost:3000/api/auth/getuser", requestOptions).catch((error) => console.error(error));
+                const json = await response.json();
+                console.log(json.preference)
+                setpreference(json.preference)
+            }
+            getUser();
+        }
     }, [])
 
-
-    const [articles, setArticles] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [page, setPage] = useState(1)
-    const [totalResults, setTotalResults] = useState(0)
-    const [preference, setpreference] = useState(["news"])
 
     const concatq = (array) => {
         let q = ""
@@ -37,7 +54,8 @@ function Feed() {
     }
     const updateNews = async () => {
         let q = "";
-        (preference != []) ? q = concatq(preference) : q = "news";
+        // console.log(preference.length==0)
+        (preference.length!=0) ? q = concatq(preference) : q = "news";
         console.log(q)
         const url = `https://newsapi.org/v2/everything?q=${q}&apiKey=2c349543be4947a0ae656d2a4fc380c6&page=${page}&pageSize=10`;
         setLoading(true)

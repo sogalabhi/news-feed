@@ -18,11 +18,37 @@ const Card = ({ image, titleHref, CardTitle, CardDescription, author, publishedA
             pref = pref.concat(keyword);
         }
         setpreference((prevArray) => [...new Set(prevArray.concat(pref))])
-        
+
     }
     useEffect(() => {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            navigate("/login");
+        }
+    }, [])
+    useEffect(() => {
+        console.log("inside useEffect")
+        const token = localStorage.getItem('authToken');
         let uniq = [...new Set(preference)]
         console.log(uniq)
+        const myHeaders = new Headers();
+        myHeaders.append("auth-token", token);
+        myHeaders.append("Content-Type", "application/json");
+        const raw = JSON.stringify({
+            "preference": uniq
+        });
+        const requestOptions = {
+            method: "PUT",
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow"
+        };
+        async function updateUser() {
+            const response = await fetch("http://localhost:3000/api/auth/updateuser", requestOptions).catch((error) => console.error(error));
+            const json = await response.json();
+            console.log(json)
+        }
+        updateUser();
     }, [preference]);
 
     return (

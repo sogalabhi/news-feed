@@ -46,9 +46,9 @@ router.post('/createuser', [
 })
 
 //Update user
-router.put('/updateuser/:id', async (req, res) => {
+router.put('/updateuser',fetchuser,  async (req, res) => {
     try {
-        const uid = req.params.id;
+        let uid = req.user.id;
         let { preference } = req.body;
         let newUser ={}
         if (preference) { newUser.preference = preference }
@@ -56,7 +56,7 @@ router.put('/updateuser/:id', async (req, res) => {
         let user = await User.findById({_id: uid});
         if (!user) { return res.status(404).send("User not found") }
 
-        user = await User.findByIdAndUpdate(req.params.id, { $set: newUser }, { new: true });
+        user = await User.findByIdAndUpdate(uid, { $set: newUser }, { new: true });
         res.send(user);
     } catch (error) {
         res.status(500).send({ error })
@@ -96,11 +96,12 @@ router.post('/login', [
 })
 
 //Get user details 
-router.post('/getuser', fetchuser, async (req, res) => {
+router.get('/getuser', fetchuser, async (req, res) => {
     try {
         let userId = req.user.id;
+        console.log(userId)
         const user = await User.findById(userId).select("-password");
-        res.send({ user });
+        res.send(user);
     } catch (error) {
         res.status(500).send({ error })
     }
