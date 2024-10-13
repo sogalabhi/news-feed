@@ -91,3 +91,10 @@ This project is a personalized news feed application built using React and Node.
 ## Contributing
 
 Feel free to fork this repository and submit pull requests. Contributions are welcome!
+
+## Demo video
+
+
+
+https://github.com/user-attachments/assets/ac226bbf-b71e-400b-aed4-91d58a93fb41
+
